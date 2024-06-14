@@ -1,0 +1,40 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Links</title>
+  </head>
+  <style>
+    .darker-theme {
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: Arial, sans-serif;
+      }
+  </style>
+  <body>
+    <div class="darker-theme">
+      <h1>Links</h1>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Link</th>
+            <th>Search Term</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for link in links %}
+          <tr>
+            <td>{{ link.id }}</td>
+            <td>{{ link.link }}</td>
+            <td>{{ link.search_term }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <br>
+      <a href="{{ url_for('add_link') }}">Add a New Link</a>
+    </div>
+  </body>
+</html>

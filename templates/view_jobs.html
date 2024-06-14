@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Links</title>
+    <style>
+      body {
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: Arial, sans-serif;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #333;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #333;
+        color: #fff;
+      }
+      tr:nth-child(even) {
+        background-color: #2c2c2c;
+      }
+      tr:nth-child(odd) {
+        background-color: #1f1f1f;
+      }
+      a {
+        color: #bb86fc;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Link</th>
+          <th>Search Term</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for link in jobs %}
+        <tr>
+          <td>{{ link.id }}</td>
+          <td>{{ link.job_title }}</td>
+          <td>{{ link.job_summary }}</td>
+          <td>{{ link.job_published }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('add_link') }}">Add a New Link</a>
+  </body>
+</html>
+<script>
+  setTimeout(function(){
+   window.location.reload(1);
+}, 10000);
+</script>

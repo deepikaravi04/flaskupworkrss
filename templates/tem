@@ -1,0 +1,23 @@
+//currentTimeframe = Period();
+      //Print("OnTick: Current Timeframe = ", currentTimeframe);
+      //if (currentTimeframe == 240){
+      //   secondTimeframe = PERIOD_H1;
+      //}
+      //else if (currentTimeframe == 60){
+      //   secondTimeframe = PERIOD_M30;
+      //}
+      //else if (currentTimeframe == 30){
+      //   secondTimeframe = PERIOD_M15;
+      //}
+      //else if (currentTimeframe == 15){
+      //   secondTimeframe = PERIOD_M5;
+      //}
+      //else if (currentTimeframe == 5){
+      //   secondTimeframe = PERIOD_M1;
+      //}
+      //else if (currentTimeframe == 1){
+      //   currentTimeframe = PERIOD_M5;
+      //   secondTimeframe = PERIOD_M1;
+      //}
+      //Print("Timeframe  --  ", currentTimeframe, "  -- ", secondTimeframe);
+      

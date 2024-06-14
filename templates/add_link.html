@@ -1,0 +1,32 @@
+<!-- templates/add_link.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Add Link</title>
+  </head>
+  <body>
+    <h1>Add a New Link</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+      <label for="link">Link:</label>
+      <input type="text" id="link" name="link" required>
+      <br>
+      <label for="search_term">Search Term:</label>
+      <input type="text" id="search_term" name="search_term" required>
+      <br>
+      <input type="submit" value="Add Link">
+    </form>
+    <br>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+  </body>
+</html>

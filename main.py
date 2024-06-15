@@ -84,17 +84,20 @@ def background_task():
                             summary = BeautifulSoup(entry.summary, 'html.parser').get_text()
                             published_date = date_parser.parse(entry.published)
                             job = JobLocker.query.filter_by(job_title=title).first()
-                            apply_link_match = re.search(r'href="([^"]+)"', entry.summary)
+                            apply_link_match = "H"
+                            summary = entry.summary
+                            tele_summary = (summary.replace('<br />', '\n'))
+                            # print(apply_link_match)
                             if not job:
                                 if any(term.lower() in summary.lower() for term in filter_term_list):
                                     print(f'New job found: {title}')
-                                    send_dispatch_telegram(title, summary, published_date, apply_link_match)
+                                    send_dispatch_telegram(title, tele_summary, published_date, apply_link_match)
                                     # print(summary)
                                     for filter_term in filter_term_list:
                                         if filter_term.lower() in summary.lower():
                                             term = filter_term
                                             break
-                                    budget_match = re.search(r'Budget: \$(\d+)', entry.summary)
+                                    budget_match = "H"
                                     price_type = None
                                     if budget_match:
                                         price_type = budget_match

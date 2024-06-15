@@ -5,13 +5,7 @@
     <meta charset="utf-8">
     <title>Links</title>
   </head>
-  <style>
-    .darker-theme {
-        background-color: #121212;
-        color: #e0e0e0;
-        font-family: Arial, sans-serif;
-      }
-  </style>
+
   <body>
     <div class="darker-theme">
       <h1>Links</h1>
@@ -27,7 +21,7 @@
           {% for link in links %}
           <tr>
             <td>{{ link.id }}</td>
-            <td>{{ link.link }}</td>
+            <td>{{ link.search_link }}</td>
             <td>{{ link.search_term }}</td>
           </tr>
           {% endfor %}

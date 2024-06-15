@@ -14,16 +14,16 @@
         border-collapse: collapse;
       }
       th, td {
-        border: 1px solid #333;
+        border: 1px solid #030101;
         padding: 8px;
         text-align: left;
       }
       th {
-        background-color: #333;
+        background-color: #020202;
         color: #fff;
       }
       tr:nth-child(even) {
-        background-color: #2c2c2c;
+        background-color: #030303;
       }
       tr:nth-child(odd) {
         background-color: #1f1f1f;
@@ -41,9 +41,9 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
+          <!-- <th>ID</th>
           <th>Link</th>
-          <th>Search Term</th>
+          <th>Search Term</th> -->
         </tr>
       </thead>
       <tbody>
@@ -51,8 +51,9 @@
         <tr>
           <td>{{ link.id }}</td>
           <td>{{ link.job_title }}</td>
-          <td>{{ link.job_summary }}</td>
+          <td>{{ ' '.join(link.job_summary.split()[:20]) }}</td>
           <td>{{ link.job_published }}</td>
+          <td>{{ link.job_price_type }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -63,6 +64,6 @@
 </html>
 <script>
   setTimeout(function(){
-   window.location.reload(1);
-}, 10000);
+    window.location.reload(1);
+  }, 10000);
 </script>

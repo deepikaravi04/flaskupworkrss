@@ -9,6 +9,8 @@ import asyncio
 from telegram import Bot
 from bs4 import BeautifulSoup
 import logging
+import re
+
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -22,7 +24,7 @@ bot_token = '7162513284:AAGUXwYIhA19hFyj8dGV26Qh-TnSJci6soI'
 
 class DispatchLinks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    search_link = db.Column(db.String(500), unique=True, nullable=False)
+    search_link = db.Column(db.String(1500), unique=True, nullable=False)
     search_term = db.Column(db.String(120), unique=True, nullable=False)
 
     def __repr__(self):
@@ -37,9 +39,11 @@ class FilterTerm(db.Model):
 
 class JobLocker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    job_title = db.Column(db.String(500), unique=True, nullable=False)
+    job_title = db.Column(db.String(1500), unique=True, nullable=False)
     job_summary = db.Column(db.String(5000), nullable=False)
     job_published = db.Column(db.DateTime, nullable=False)
+    job_search_term = db.Column(db.String(5000), nullable=False)
+    job_price_type = db.Column(db.String(5000), nullable=False)
 
     def __repr__(self):
         return f'<JobLocker {self.job_title}>'
@@ -48,17 +52,17 @@ async def send_message_async(bot_token, group_chat_id, message):
     bot = Bot(token=bot_token)
     await bot.send_message(chat_id=group_chat_id, text=message, parse_mode='html')
 
-def send_dispatch_telegram(title, summary, published_date):
+def send_dispatch_telegram(title, summary, published_date, apply_link_match):
     max_message_length = 4096
     message = f"{published_date}\n\n{title}\n\n{summary}"
     
     if len(message) > max_message_length:
-        # If the message is too long, split it into multiple parts
         parts = [message[i:i+max_message_length] for i in range(0, len(message), max_message_length)]
         for part in parts:
             asyncio.run(send_message_async(bot_token, '-1002131270840', part))
-            time.sleep(1)  # Small delay to avoid flooding
+            time.sleep(1) 
     else:
+        message += apply_link_match
         asyncio.run(send_message_async(bot_token, '-1002131270840', message))
 
 
@@ -80,13 +84,24 @@ def background_task():
                             summary = BeautifulSoup(entry.summary, 'html.parser').get_text()
                             published_date = date_parser.parse(entry.published)
                             job = JobLocker.query.filter_by(job_title=title).first()
+                            apply_link_match = re.search(r'href="([^"]+)"', entry.summary)
                             if not job:
-                                # Check if any filter term is in the summary
                                 if any(term.lower() in summary.lower() for term in filter_term_list):
                                     print(f'New job found: {title}')
-                                    send_dispatch_telegram(title, summary, published_date)
-                                    new_job = JobLocker(job_title=title, job_summary=summary, job_published=published_date)
-                                    db.session.add(new_job)
+                                    send_dispatch_telegram(title, summary, published_date, apply_link_match)
+                                    # print(summary)
+                                    for filter_term in filter_term_list:
+                                        if filter_term.lower() in summary.lower():
+                                            term = filter_term
+                                            break
+                                    budget_match = re.search(r'Budget: \$(\d+)', entry.summary)
+                                    price_type = None
+                                    if budget_match:
+                                        price_type = budget_match
+                                    else:
+                                        price_type = "Hourly"
+                                    new_job = JobLocker(job_title=title, job_summary=summary, job_published=published_date, job_search_term = term, job_price_type = price_type)
+                                    db.session.add(new_job)         
                                     db.session.commit()
                                     time.sleep(5)
         except Exception as e:
@@ -111,7 +126,6 @@ def add_link():
         link = request.form['link']
         search_term = request.form['search_term']
         new_link = DispatchLinks(search_link=link, search_term=search_term)
-
         try:
             db.session.add(new_link)
             db.session.commit()
@@ -138,9 +152,7 @@ def add_filter():
         except:
             db.session.rollback()
             flash('Error: The filter term already exists or is invalid!', 'danger')
-
         return redirect(url_for('add_filter'))
-
     return render_template('add_filter.html')
 
 @app.route('/view_filters')
@@ -158,4 +170,4 @@ if __name__ == '__main__':
     thread.daemon = True
     thread.start()
 
-    app.run()
+    app.run(debug=True)

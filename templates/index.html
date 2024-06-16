@@ -1,34 +1,27 @@
-<!-- templates/index.html -->
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Links</title>
-  </head>
+{% extends "base.html" %}
 
-  <body>
-    <div class="darker-theme">
-      <h1>Links</h1>
-      <table border="1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Link</th>
-            <th>Search Term</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for link in links %}
-          <tr>
-            <td>{{ link.id }}</td>
-            <td>{{ link.search_link }}</td>
-            <td>{{ link.search_term }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <br>
-      <a href="{{ url_for('add_link') }}">Add a New Link</a>
-    </div>
-  </body>
-</html>
+{% block title %}Job Listings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Job Listings</h1>
+    {% if jobs %}
+        <div class="list-group">
+            {% for job in jobs %}
+                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ job.job_title }}</h5>
+                        <small>{{ job.job_published.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mb-1">{{ job.job_summary }}</p>
+                    <small>Search Term: {{ job.job_search_term }}</small>
+                    <br>
+                    <small>Price Type: {{ job.job_price_type }}</small>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="mt-3">No job listings available.</p>
+    {% endif %}
+</div>
+{% endblock %}

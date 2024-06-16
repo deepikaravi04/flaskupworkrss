@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}View Job Filter Terms{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">View Job Filter Terms</h1>
+    <table class="table mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Filter Term</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if filters %}
+                {% for filter in filters %}
+                <tr>
+                    <th style="color: aliceblue;" scope="row">{{ loop.index }}</th>
+                    <td style="color: aliceblue;">{{ filter.filter_term }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="2">No job filter terms found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

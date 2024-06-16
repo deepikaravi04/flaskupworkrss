@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Add Job Filter Term{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Add Job Filter Term</h1>
+    <form method="POST" action="{{ url_for('add_job_filter_term') }}">
+        <div class="form-group">
+            <label for="filter_term">Filter Term</label>
+            <input type="text" class="form-control" id="filter_term" name="filter_term" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Filter Term</button>
+    </form>
+</div>
+{% endblock %}

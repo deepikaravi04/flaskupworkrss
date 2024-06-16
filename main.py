@@ -19,11 +19,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 bot_token = '7162513284:AAGUXwYIhA19hFyj8dGV26Qh-TnSJci6soI'
 
 class RSSFeedLink(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    search_link = db.Column(db.String(1500), unique=True, nullable=False)
+    search_link = db.Column(db.Text, nullable=False)
     search_term = db.Column(db.String(120), unique=True, nullable=False)
 
     def __repr__(self):
@@ -38,8 +39,8 @@ class JobFilterTerm(db.Model):
 
 class JobListing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    job_title = db.Column(db.String(1500), unique=True, nullable=False)
-    job_summary = db.Column(db.String(5000), nullable=False)
+    job_title = db.Column(db.Text, nullable=False)
+    job_summary = db.Column(db.Text, nullable=False)
     job_published = db.Column(db.DateTime, nullable=False)
     job_search_term = db.Column(db.String(5000), nullable=False)
     job_price_type = db.Column(db.String(5000), nullable=False)
@@ -66,7 +67,7 @@ def dispatch_job_to_telegram(title, summary, published_date, apply_link_match):
 
 def rss_feed_background_task():
     while True:
-        print("Background task is running...")
+        # print("Background task is running...")
         try:
             with app.app_context():
                 links = RSSFeedLink.query.all()
@@ -79,29 +80,44 @@ def rss_feed_background_task():
                     if feed.bozo == 0:
                         for entry in feed.entries:
                             title = entry.title
-                            summary = BeautifulSoup(entry.summary, 'html.parser').get_text()
+                            summary_html = entry.summary
+                            summary_text = BeautifulSoup(summary_html, 'html.parser').get_text()
                             published_date = date_parser.parse(entry.published)
                             job = JobListing.query.filter_by(job_title=title).first()
                             apply_link_match = "H"
-                            summary = entry.summary
-                            tele_summary = (summary.replace('<br />', '\n'))
+                            
                             if not job:
-                                if any(term.lower() in summary.lower() for term in filter_term_list):
+                                if any(term.lower() in summary_text.lower() or term.lower() in title.lower() for term in filter_term_list):
                                     print(f'New job found: {title}')
-                                    dispatch_job_to_telegram(title, tele_summary, published_date, apply_link_match)
-                                    new_job = JobListing(job_title=title, job_summary=summary, job_published=published_date, job_search_term="term", job_price_type="price_type")
+                                    dispatch_job_to_telegram(title, summary_text.replace('<br />', '\n'), published_date, apply_link_match)
+                                    new_job = JobListing(job_title=title, job_summary=summary_html, job_published=published_date, job_search_term=link.search_term, job_price_type="price_type")
                                     db.session.add(new_job)
                                     db.session.commit()
                                     time.sleep(5)
         except Exception as e:
             print(f'Error: {e}')
-            time.sleep(600)
+            time.sleep(60)
         time.sleep(10)
+
 
 @app.route('/')
 def display_jobs():
     jobs = JobListing.query.order_by(JobListing.job_published.desc()).all()
     return render_template('index.html', jobs=jobs)
+
+
+@app.route('/delete_job/<int:job_id>', methods=['POST'])
+def delete_job(job_id):
+    job = JobListing.query.get_or_404(job_id)
+    try:
+        db.session.delete(job)
+        db.session.commit()
+        flash('Job deleted successfully!', 'success')
+    except:
+        db.session.rollback()
+        flash('Error: Unable to delete job!', 'danger')
+    return redirect(url_for('display_jobs'))
+
 
 @app.route('/add_rss_feed_link', methods=['GET', 'POST'])
 def add_rss_feed_link():

@@ -10,3 +10,14 @@ ExecStart=/home/ubuntu/flaskupworkrss/venv/bin/gunicorn -b localhost:8000 main:a
 Restart=always
 [Install]
 WantedBy=multi-user.target
+max_message_length = 4096
+    message = f"{published_date}\n\n{title}\n\n{summary}"
+    
+    if len(message) > max_message_length:
+        parts = [message[i:i+max_message_length] for i in range(0, len(message), max_message_length)]
+        for part in parts:
+            asyncio.run(send_message_async(bot_token, '-1002131270840', part))
+            time.sleep(1) 
+    else:
+        message += apply_link_match
+        asyncio.run(send_message_async(bot_token, '-1002131270840', message))
